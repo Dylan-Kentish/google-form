@@ -18,7 +18,7 @@ export const formSchema = z.object({
   file: z
     .any()
     .refine(v => v !== null, { message: 'Required' })
-    .refine(v => v!.size < 4 * 1024 * 1024, { message: 'File must be less than 4MB' }),
+    .refine(v => v?.size < 4 * 1024 * 1024, { message: 'File must be less than 4MB' }),
   terms: z.boolean().refine(v => v, { message: 'Required' }),
   over18: z.boolean().refine(v => v, { message: 'Required' }),
 });
