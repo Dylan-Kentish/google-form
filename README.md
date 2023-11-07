@@ -43,54 +43,58 @@ GOOGLE_PRIVATE_KEY=<Service Account Private Key>
 ## Google Apps Script
 ```javascript
 function doPost(e) {
-  var form = FormApp.openById('<Google Form ID>');
-  var formResponse = form.createResponse();
-  var items = form.getItems();
-  
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
-    var itemType = item.getType();
-    var itemName = item.getTitle();
-    var response = e.parameter[itemName];
+  try {    
+    var form = FormApp.openById('<Google Form ID>');
+    var formResponse = form.createResponse();
+    var items = form.getItems();
+    
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var itemType = item.getType();
+      var itemName = item.getTitle();
+      var response = e.parameter[itemName];
 
-    if (!response) continue;
+      if (!response) continue;
 
-    switch (itemType) {
-      case FormApp.ItemType.TEXT:
+      switch (itemType) {
+        case FormApp.ItemType.TEXT:
         // This is a hack to support files, without using the FILE_UPLOAD item in the form.
-        if (itemName === 'File') {
-          var file = DriveApp.getFileById(response);
-          response = file.getUrl();
-        }
-        var textResponse = item.asTextItem().createResponse(response);
-        formResponse.withItemResponse(textResponse);
-        break;
+          if (itemName === 'File') {
+            var file = DriveApp.getFileById(response);
+            response = file.getUrl();
+          }
+          var textResponse = item.asTextItem().createResponse(response);
+          formResponse.withItemResponse(textResponse);
+          break;
 
-      case FormApp.ItemType.PARAGRAPH_TEXT:
-        var paragraphResponse = item.asParagraphTextItem().createResponse(response);
-        formResponse.withItemResponse(paragraphResponse);
-        break;
+        case FormApp.ItemType.PARAGRAPH_TEXT:
+          var paragraphResponse = item.asParagraphTextItem().createResponse(response);
+          formResponse.withItemResponse(paragraphResponse);
+          break;
 
-      case FormApp.ItemType.MULTIPLE_CHOICE:
-        var mcResponse = item.asMultipleChoiceItem().createResponse(response);
-        formResponse.withItemResponse(mcResponse);
-        break;
+        case FormApp.ItemType.MULTIPLE_CHOICE:
+          var mcResponse = item.asMultipleChoiceItem().createResponse(response);
+          formResponse.withItemResponse(mcResponse);
+          break;
 
-      case FormApp.ItemType.CHECKBOX:
-        var checkboxResponses = response.split(',');
-        var checkboxResponse = item.asCheckboxItem().createResponse(checkboxResponses);
-        formResponse.withItemResponse(checkboxResponse);
-        break;
+        case FormApp.ItemType.CHECKBOX:
+          var checkboxResponses = response.split(',');
+          var checkboxResponse = item.asCheckboxItem().createResponse(checkboxResponses);
+          formResponse.withItemResponse(checkboxResponse);
+          break;
 
-      // Add cases for other item types if needed
+        // Add cases for other item types if needed
 
-      default:
-        Logger.log("Unhandled item type: " + itemType);
+        default:
+          Logger.log("Unhandled item type: " + itemType);
+      }
     }
-  }
 
-  formResponse.submit();
-  return ContentService.createTextOutput("Success")
+    formResponse.submit();
+    return ContentService.createTextOutput("Submitted!")
+  } catch (err) {
+    return ContentService.createTextOutput(err)
+  }
 }
 ```
 
