@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
 import { submitUsingURL } from '@/actions/submit';
@@ -59,8 +60,11 @@ export function GoogleForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    uploadFile(values.file!).then(fileId => {
-      submitUsingURL(
+    const id = toast.loading('Submitting form...');
+
+    try {
+      const fileId = await uploadFile(values.file!);
+      await submitUsingURL(
         values.name,
         values.twitter,
         values.discord,
@@ -69,10 +73,18 @@ export function GoogleForm() {
         fileId,
         values.terms,
         values.over18
-      ).catch(error => {
-        console.error(error);
+      );
+
+      toast.success('Form submitted successfully!', {
+        id,
       });
-    }, console.error);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to submit the form. Please try again.', {
+        id,
+      });
+    }
   }
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
