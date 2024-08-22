@@ -28,6 +28,7 @@ This is a high level overview of how to use this repo; you will need to make cha
   - Enable the Google Apps Script API
   - Create a Service Account
   - Download the Service Account JSON
+  - Add yourself as a `Test user` under the OAuth consent screen
 - Share a Google Drive folder with the Service Account
 - Create an `.env` and add the following:
 
